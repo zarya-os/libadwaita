@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,-O1 -Wl,-z,defs
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
+
+BUILD_DOCS := -Dgtk_doc=false
+# only build if the profile nodoc is NOT set
+ifeq ($(filter nodoc, $(DEB_BUILD_OPTIONS)),)
+BUILD_DOCS := -Dgtk_doc=true
+endif
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(BUILD_DOCS)
+
+override_dh_auto_test:
+	xvfb-run -s -noreset dh_auto_test
